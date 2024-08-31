@@ -489,6 +489,8 @@ static esp_err_t capture_handler(httpd_req_t *req) {
 #endif
 }
 
+static int64_t last_frame = 0;
+
 static esp_err_t stream_handler(httpd_req_t *req) {
   camera_fb_t *fb = NULL;
   struct timeval _timestamp;
@@ -517,10 +519,6 @@ static esp_err_t stream_handler(httpd_req_t *req) {
 #endif
 #endif
 
-  static int64_t last_frame = 0;
-  if (!last_frame) {
-    last_frame = esp_timer_get_time();
-  }
 
   res = httpd_resp_set_type(req, _STREAM_CONTENT_TYPE);
   if (res != ESP_OK) {
@@ -716,6 +714,7 @@ static esp_err_t stream_handler(httpd_req_t *req) {
 #endif
 
     int64_t frame_time = fr_end - last_frame;
+    last_frame = fr_end;
     frame_time /= 1000;
 #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_INFO
     uint32_t avg_frame_time = ra_filter_run(&ra_filter, frame_time);
@@ -1128,10 +1127,12 @@ static esp_err_t index_handler(httpd_req_t *req) {
   sensor_t *s = esp_camera_sensor_get();
   if (s != NULL) {
     if (s->id.PID == OV3660_PID) {
+/*      
       return httpd_resp_send(req, (const char *)index_ov3660_html_gz, index_ov3660_html_gz_len);
     } else if (s->id.PID == OV5640_PID) {
       return httpd_resp_send(req, (const char *)index_ov5640_html_gz, index_ov5640_html_gz_len);
     } else {
+*/    
       return httpd_resp_send(req, (const char *)index_ov2640_html_gz, index_ov2640_html_gz_len);
     }
   } else {

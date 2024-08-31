@@ -36,17 +36,19 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char *ssid = "HA2";
-const char *password = "DomaceNaprave444";
+#include "_USER_DEFINES.h"
+
 
 void startCameraServer();
 void setupLedFlash(int pin);
 
 void setup() {
   Serial.begin(115200);
-  delay(5000);
+  delay(1000);
   Serial.setDebugOutput(true);
   Serial.println();
+
+  Serial.println("Camera start...");  
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -73,17 +75,21 @@ void setup() {
   //config.pixel_format = PIXFORMAT_RGB565; // for face detection/recognition
   config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
   config.fb_location = CAMERA_FB_IN_PSRAM;
-  config.jpeg_quality = 12;
+  config.jpeg_quality = 15;
   config.fb_count = 1;
 
   // if PSRAM IC present, init with UXGA resolution and higher JPEG quality
   //                      for larger pre-allocated frame buffer.
   if (config.pixel_format == PIXFORMAT_JPEG) {
     if (psramFound()) {
+      Serial.println("PSRAM found.");  
+      // psramInit();
+      Serial.println((String)"Memory available in PSRAM : " +ESP.getFreePsram());
       config.jpeg_quality = 10;
       config.fb_count = 2;
       config.grab_mode = CAMERA_GRAB_LATEST;
     } else {
+      Serial.println("PSRAM  NOT found.");  
       // Limit the frame size when PSRAM is not available
       config.frame_size = FRAMESIZE_SVGA;
       config.fb_location = CAMERA_FB_IN_DRAM;
@@ -103,8 +109,10 @@ void setup() {
 
   // camera init
   esp_err_t err = esp_camera_init(&config);
-  if (err != ESP_OK) {
-    Serial.printf("Camera init failed with error 0x%x", err);
+  if (err == ESP_OK) {
+    Serial.println("Camera init ok.");
+  } else {
+    Serial.printf("Camera init failed with error 0x%x\n", err);
     return;
   }
 
@@ -114,10 +122,6 @@ void setup() {
     s->set_vflip(s, 1);        // flip it back
     s->set_brightness(s, 1);   // up the brightness just a bit
     s->set_saturation(s, -2);  // lower the saturation
-  }
-  // drop down frame size for higher initial frame rate
-  if (config.pixel_format == PIXFORMAT_JPEG) {
-    s->set_framesize(s, FRAMESIZE_QVGA);
   }
 
 #if defined(CAMERA_MODEL_M5STACK_WIDE) || defined(CAMERA_MODEL_M5STACK_ESP32CAM)
@@ -129,10 +133,40 @@ void setup() {
   s->set_vflip(s, 1);
 #endif
 
+  // set frame size
+  if (config.pixel_format == PIXFORMAT_JPEG) {
+    s->set_framesize(s, FRAMESIZE_QVGA); // changing this setting resets clock settings!
+  }
+
+  // custom optimizations
+  int res;
+  res = s->set_agc_gain(s, 1); // enable
+  log_i("set_agc_gain -> %d", res);
+  res = s->set_gainceiling(s, GAINCEILING_32X); // max AGC allowed
+  log_i("set_gainceiling -> %d", res);
+  res = s->set_aec_value(s, 1); // AEC sensor
+  log_i("set_aec_value -> %d", res);
+  res = s->set_aec2(s, 1); // AEC DSP
+  log_i("set_aec2 -> %d", res);
+  res = s->set_lenc(s, 0); // lens correction off
+  log_i("set_lenc -> %d", res);
+  // CLK 2X Set Register: reg: 0x111, mask: 0x80, value: 0x80
+  res = s->set_reg(s, 0x111, 0x80, 0x80);
+  log_i("CLK 2X set_reg -> %d", res);
+  // PCLK DIV 6 Set Register: reg: 0xd3, mask: 0x7f, value: 0x06
+  res = s->set_reg(s, 0xd3, 0x7f, 0x06);
+  log_i("PCLK DIV 6 set_reg -> %d", res);
+
+
+
+
 // Setup LED FLash if LED pin is defined in camera_pins.h
 #if defined(LED_GPIO_NUM)
   setupLedFlash(LED_GPIO_NUM);
 #endif
+
+  Serial.println();
+  Serial.println("WiFi start...");  
 
   WiFi.begin(ssid, password);
   WiFi.setSleep(false);
@@ -142,11 +176,12 @@ void setup() {
     Serial.print(".");
   }
   Serial.println("");
-  Serial.println("WiFi connected");
+  Serial.println("WiFi connected.");
 
+  Serial.println("Starting servers...");
   startCameraServer();
 
-  Serial.print("Camera Ready! Use 'http://");
+  Serial.print("System Ready! Use 'http://");
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
 }
