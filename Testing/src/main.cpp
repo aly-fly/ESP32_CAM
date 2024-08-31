@@ -1,12 +1,14 @@
 #include "esp_camera.h"
 #include <WiFi.h>
+#include "chip_info.h"
+#include "_USER_DEFINES.h"
 
 //
 // WARNING!!! PSRAM IC required for UXGA resolution and high JPEG quality
 //            Ensure ESP32 Wrover Module or other board with PSRAM is selected
 //            Partial images will be transmitted if image exceeds buffer size
 //
-//            You must select partition scheme from the board menu that has at least 3MB APP space.
+//            You must select partition scheme that has at least 3MB APP space.
 //            Face Recognition is DISABLED for ESP32 and ESP32-S2, because it takes up from 15
 //            seconds to process single frame. Face Detection is ENABLED if PSRAM is enabled as well
 
@@ -36,7 +38,7 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-#include "_USER_DEFINES.h"
+// see #include "_USER_DEFINES.h"
 
 
 void startCameraServer();
@@ -45,6 +47,7 @@ void setupLedFlash(int pin);
 void setup() {
   Serial.begin(115200);
   delay(1000);
+  GetPrintChipInfo();
   Serial.setDebugOutput(true);
   Serial.println();
 
@@ -135,7 +138,7 @@ void setup() {
 
   // set frame size
   if (config.pixel_format == PIXFORMAT_JPEG) {
-    s->set_framesize(s, FRAMESIZE_QVGA); // changing this setting resets clock settings!
+    s->set_framesize(s, FRAMESIZE_SVGA); // changing this setting resets clock settings!
   }
 
   // custom optimizations
@@ -153,9 +156,11 @@ void setup() {
   // CLK 2X Set Register: reg: 0x111, mask: 0x80, value: 0x80
   res = s->set_reg(s, 0x111, 0x80, 0x80);
   log_i("CLK 2X set_reg -> %d", res);
+  /*
   // PCLK DIV 6 Set Register: reg: 0xd3, mask: 0x7f, value: 0x06
   res = s->set_reg(s, 0xd3, 0x7f, 0x06);
   log_i("PCLK DIV 6 set_reg -> %d", res);
+  */
 
 
 
