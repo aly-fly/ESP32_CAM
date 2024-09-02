@@ -1,7 +1,7 @@
 
 // #define WEBSERVER_TEST  1
 
-// Photo File Name to save in SPIFFS
+// Photo File Name to save in the file system
 #define PHOTO_FILE_NAME "photo.jpg"
 #define PHOTO_FILE_PATH "/photo.jpg"
 

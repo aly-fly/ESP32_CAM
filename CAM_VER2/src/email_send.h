@@ -1,2 +1,2 @@
 
-void emailSend();
+String emailSend();

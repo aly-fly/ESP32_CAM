@@ -55,12 +55,12 @@ SMTPSession smtp;
 void smtpCallback(SMTP_Status status);
 
 
-void emailSend()
+String emailSend()
 {
   if (WiFi.status() != WL_CONNECTED)
   {
     Serial.print("WiFi is not connected!");
-    return;
+    return "WiFi is not connected!";
   }
 
   /*  Set the network reconnection option */
@@ -176,7 +176,7 @@ void emailSend()
   if (!smtp.connect(&config))
   {
     MailClient.printf("Connection error, Status Code: %d, Error Code: %d, Reason: %s\n", smtp.statusCode(), smtp.errorCode(), smtp.errorReason().c_str());
-    return;
+    return "Mail Connection error";
   }
 
   if (!smtp.isLoggedIn())
@@ -192,13 +192,17 @@ void emailSend()
   }
 
   /* Start sending the Email and close the session */
-  if (!MailClient.sendMail(&smtp, &message, true))
+  boolean ok = MailClient.sendMail(&smtp, &message, true);
+  if (!ok) {
     MailClient.printf("Error, Status Code: %d, Error Code: %d, Reason: %s\n", smtp.statusCode(), smtp.errorCode(), smtp.errorReason().c_str());
+  };
 
   // to clear sending result log
   // smtp.sendingResult.clear();
 
   MailClient.printf("Free Heap: %d\n", MailClient.getFreeHeap());
+  if (ok) { return "Email sent sucessfully."; }
+     else { return "Email sending failed!"; }
 }
 
 

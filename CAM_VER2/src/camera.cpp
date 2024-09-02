@@ -4,7 +4,7 @@
 #include "soc/soc.h"           // Disable brownout problems
 #include "soc/rtc_cntl_reg.h"  // Disable brownout problems
 
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include <FS.h>
 
 #include "_CONFIG.h"
@@ -77,7 +77,7 @@ void CameraInit(void) {
   config.pin_sccb_scl = SIOC_GPIO_NUM;
   config.pin_pwdn = PWDN_GPIO_NUM;
   config.pin_reset = RESET_GPIO_NUM;
-  config.xclk_freq_hz = 20000000;
+  config.xclk_freq_hz = 16000000;
   config.frame_size = FRAMESIZE_UXGA;
   config.pixel_format = PIXFORMAT_JPEG;  // for streaming
   //config.pixel_format = PIXFORMAT_RGB565; // for face detection/recognition
@@ -181,16 +181,16 @@ void CameraInit(void) {
 
 //===========================================================================================================
 
-
-// Check if photo capture was successful
-bool checkPhoto( fs::FS &fs ) {
-  File f_pic = fs.open(PHOTO_FILE_PATH);
-  unsigned int pic_sz = f_pic.size();
-  return ( pic_sz > 100 );
+size_t LittleFSFilesize(const char* filename) {
+  auto file = LittleFS.open(filename, FILE_READ);
+  size_t filesize = file.size();
+  // Don't forget to clean up!
+  file.close();
+  return filesize;
 }
 
-// Capture Photo and Save it to SPIFFS
-void capturePhotoSaveSpiffs( void ) {
+// Capture Photo and Save it to LittleFS
+void capturePhotoSaveToFilesystem( void ) {
   camera_fb_t * fb = NULL; // pointer
   bool ok = 0; // Boolean indicating if the picture has been taken correctly
   size_t imageSize = 0;
@@ -199,43 +199,47 @@ void capturePhotoSaveSpiffs( void ) {
   do {
     // Take a photo with the camera
     Serial.println("Taking a photo...");
-    int64_t T1 = esp_timer_get_time();
+    int64_t Time1 = esp_timer_get_time();
     fb = esp_camera_fb_get();
     if (!fb) {
-      Serial.println("Camera capture failed");
+      log_e("Camera capture failed");
       return;
     }
-    int64_t T2 = esp_timer_get_time();
+    int64_t Time2 = esp_timer_get_time();
+    imageSize = fb->len;    
+    Serial.printf("Capture: %u B, %u us\n", (uint32_t)(imageSize), (uint32_t)((Time2 - Time1)));
+    yield();
 
     // Photo file name
     Serial.printf("Picture file name: %s\n", PHOTO_FILE_PATH);
-    File file = SPIFFS.open(PHOTO_FILE_PATH, FILE_WRITE);
+    Time1 = esp_timer_get_time();
+    File file = LittleFS.open(PHOTO_FILE_PATH, FILE_WRITE);
 
     // Insert the data in the photo file
     if (!file) {
-      Serial.println("Failed to open file in writing mode");
+      log_e("Failed to open file in writing mode");
     }
     else {
+      log_d("File open.");
+      yield();
       file.write(fb->buf, fb->len); // payload (image), payload length
-      Serial.print("The picture has been saved in ");
-      Serial.print(PHOTO_FILE_PATH);
-      Serial.print(" - Size: ");
-      Serial.print(file.size());
-      Serial.println(" bytes");
+      Serial.print("The picture has been saved.");
     }
-    fileSize = file.size();
-    // Close the file
+    // Close the file (reading file size des not work before this!)
     file.close();
-    int64_t T3 = esp_timer_get_time();
-    imageSize = fb->len;
+    Time2 = esp_timer_get_time();
     esp_camera_fb_return(fb);
 
-    // check if file has been correctly saved in SPIFFS
-    ok = checkPhoto(SPIFFS);
+    // check if file has been correctly saved in LittleFS
+    fileSize = LittleFSFilesize(PHOTO_FILE_PATH);
+    
+    ok = fileSize > 100;
     Serial.printf("File save ok: %d\n", ok);
 
-    Serial.printf("Capture: %u B, %u us\n", (uint32_t)(imageSize), (uint32_t)((T2 - T1)));
-    Serial.printf("Save: %u B, %u ms\n", (uint32_t)(fileSize), (uint32_t)((T3 - T2) / 1000));    
+
+    Serial.printf("Save: %u B, %u ms\n", (uint32_t)(fileSize), (uint32_t)((Time2 - Time1) / 1000));    
+
+    if (!ok) { delay (1500); }
   } while ( !ok );
 }
 
