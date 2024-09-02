@@ -70,9 +70,12 @@ void loop() {
     digitalWrite(LED_FLASH_GPIO_NUM, LOW); 
     takeNewPhoto = false;
     useFlash = false;
-    delay(500);
-    emailSend();
   }
-  delay(50);
 
+  if (sendEmail) {
+    emailSend();
+    sendEmail = false;
+  }
+
+  delay(50);
 }

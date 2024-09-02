@@ -17,6 +17,10 @@
       <button onclick="capturePhoto(false)">CAPTURE PHOTO</button>
       <button onclick="capturePhoto(true)">CAPTURE PHOTO w/ FLASH</button>
       <button onclick="location.reload();">REFRESH PAGE</button>
+      <button onclick="sendEmail();">SEND EMAIL</button>
+    </p>
+    <p>
+      <input type="text" id="statusbox" name="status">
     </p>
   </div>
   <div><img src="saved-photo" id="photo" width="70%"></div>
@@ -25,6 +29,12 @@
   var deg = 0;
   function capturePhoto(useFlash) {
     var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+      if ( xhr.readyState == XMLHttpRequest.DONE )
+      {
+        statusbox.value = xhr.responseText;
+      }
+    }
     var url = "/capture";
     if (useFlash) {
       url = "/capture-flash";
@@ -32,7 +42,21 @@
     xhr.open('GET', url, true);
     xhr.send();
   }
-  function rotatePhoto() {
+
+  function sendEmail() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+      if ( xhr.readyState == XMLHttpRequest.DONE )
+      {
+        statusbox.value = xhr.responseText;
+      }
+    }
+
+    xhr.open('GET', "/send-email", true);
+    xhr.send();
+  }
+
+    function rotatePhoto() {
     var img = document.getElementById("photo");
     deg += 90;
     if(isOdd(deg/90)){ document.getElementById("container").className = "vert"; }

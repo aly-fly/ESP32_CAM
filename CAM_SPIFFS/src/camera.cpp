@@ -158,9 +158,11 @@ void CameraInit(void) {
   log_i("set_aec2 -> %d", res);
   res = s->set_lenc(s, 0); // lens correction off
   log_i("set_lenc -> %d", res);
+  /*
   // CLK 2X Set Register: reg: 0x111, mask: 0x80, value: 0x80
   res = s->set_reg(s, 0x111, 0x80, 0x80);
   log_i("CLK 2X set_reg -> %d", res);
+  */
   /*
   // PCLK DIV 6 Set Register: reg: 0xd3, mask: 0x7f, value: 0x06
   res = s->set_reg(s, 0xd3, 0x7f, 0x06);
