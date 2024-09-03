@@ -1,0 +1,100 @@
+
+<!DOCTYPE HTML><html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { text-align:center; }
+    .vert { margin-bottom: 10%; }
+    .hori{ margin-bottom: 0%; }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h2>ESP32-CAM Last Photo</h2>
+    <p>This is not a very fast machine...</p>
+    <p>
+      <button onclick="rotatePhoto();">ROTATE</button>
+      <button onclick="capturePhoto(false)">CAPTURE PHOTO</button>
+      <button onclick="capturePhoto(true)">CAPTURE PHOTO w/ FLASH</button>
+      <button onclick="location.reload();">REFRESH PAGE</button>
+      <button onclick="sendEmail();">SEND EMAIL</button>
+    </p>
+    <p>
+      Status: 
+      <input type="text" id="statusbox" name="status"  width="50%">
+    </p>
+  </div>
+  <div><img src="saved-photo" id="photo" width="70%"></div>
+</body>
+<script>
+  var deg = 0;
+
+  function capturePhoto(useFlash) {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+      if ( xhr.readyState == XMLHttpRequest.DONE ) {
+        statusbox.value = xhr.responseText;
+      }
+    }
+    var url = "/capture";
+    if (useFlash) {
+      url = "/capture-flash";
+    }
+    xhr.open('GET', url, true);
+    xhr.send();
+  }
+
+  function sendEmail() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+      if ( xhr.readyState == XMLHttpRequest.DONE ) {
+        statusbox.value = xhr.responseText;
+      }
+    }
+
+    xhr.open('GET', "/send-email", true);
+    xhr.send();
+  }
+
+  function getStatus() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+      if ( xhr.readyState == XMLHttpRequest.DONE ) {
+        statusbox.value = xhr.responseText;
+      } else {
+        statusbox.value = xhr.readyState;
+      }
+    }
+    xhr.open('GET', "/getStatus");
+    xhr.send();
+  }  
+
+    function rotatePhoto() {
+    var img = document.getElementById("photo");
+    deg += 90;
+    if(isOdd(deg/90)){ document.getElementById("container").className = "vert"; }
+    else{ document.getElementById("container").className = "hori"; }
+    img.style.transform = "rotate(" + deg + "deg)";
+  }
+  function isOdd(n) { return Math.abs(n % 2) == 1; }
+
+
+
+  // startup
+  function onloadfunc()
+   {
+     getStatus();
+     setTimeout(myRefresh,5000) ;
+   }
+
+   // Request current status.
+   function myRefresh()
+   {
+    getStatus();
+    setTimeout(myRefresh,5000) ;
+   }
+
+   window.onload = onloadfunc ;   // Run after page has been loaded
+
+</script>
+</html>
