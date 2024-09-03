@@ -1,2 +1,2 @@
 
-String emailSend();
+String emailSend(bool LiveImage);

@@ -15,18 +15,21 @@
 
 void setup() {
   Serial.begin(115200);
+  Serial.setDebugOutput(true);
+  delay(100);
+
   pinMode(LED_FLASH_GPIO_NUM, OUTPUT);
   pinMode(LED_RED_GPIO_NUM, OUTPUT);  
 
-  delay(1000);
+#if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE // debug level 5
   GetPrintChipInfo();
-  Serial.setDebugOutput(true);
   Serial.println();
+#endif
 
   // Initialize LittleFS
   Serial.println("Mounting LittleFS..");
   if(!LittleFS.begin()){
-    Serial.println("An Error has occurred while mounting LittleFS.");
+    log_e("An Error has occurred while mounting LittleFS.");
     while (1) { delay(10); yield(); } // Stay here twiddling thumbs waiting
   }
 
@@ -78,7 +81,7 @@ void loop() {
   delay(500);
 
   if (sendEmail) {
-    currentStatus = emailSend();
+    currentStatus = emailSend(emailLiveImage);
     sendEmail = false;
   }
 

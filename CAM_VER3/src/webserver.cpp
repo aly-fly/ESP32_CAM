@@ -2,6 +2,7 @@
 #include "ESPAsyncWebServer.h"
 //#include <ESPmDNS.h>
 #include "LittleFS.h"
+#include "esp_camera.h"
 #include "_CONFIG.h"
 
 String ledState;
@@ -13,6 +14,7 @@ AsyncWebServer server(80);
 boolean takeNewPhoto = false;
 boolean useFlash = false;
 boolean sendEmail = false;
+boolean emailLiveImage = false;
 
 
 // Replaces placeholder with LED state value
@@ -92,11 +94,26 @@ void webserverInit(){
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest * request) {
     log_i("Server Root request.");
+    //log_i("Client: ", request->client()->remoteIP());
     request->send(LittleFS, "/index.html", String(), false);
   });
 
   server.on("/saved-photo", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(LittleFS, PHOTO_FILE_PATH, "image/jpg", false);
+  });
+
+  server.on("/live-photo", HTTP_GET, [](AsyncWebServerRequest * request) {
+
+    // CAPTURE AND SEND FROM RAM
+    camera_fb_t *fb = esp_camera_fb_get();
+
+    // COPY data to the stream
+    AsyncResponseStream *response =
+        request->beginResponseStream("image/jpg", fb->len);
+    response->write(fb->buf, fb->len);
+    request->send(response);
+    yield();
+    esp_camera_fb_return(fb);
   });
 
   server.on("/capture", HTTP_GET, [](AsyncWebServerRequest * request) {
@@ -115,7 +132,15 @@ void webserverInit(){
 
   server.on("/send-email", HTTP_GET, [](AsyncWebServerRequest * request) {
     sendEmail = true;
-    request->send_P(200, "text/plain", "Sending email...");
+    emailLiveImage = false;
+    request->send_P(200, "text/plain", "Sending email (saved)...");
+    currentStatus = "Sending email in progress..";
+  });
+
+  server.on("/send-email-live", HTTP_GET, [](AsyncWebServerRequest * request) {
+    sendEmail = true;
+    emailLiveImage = true;
+    request->send_P(200, "text/plain", "Sending email (live)...");
     currentStatus = "Sending email in progress..";
   });
 

@@ -2,28 +2,33 @@
 <!DOCTYPE HTML><html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { text-align:center; }
-    .vert { margin-bottom: 10%; }
-    .hori{ margin-bottom: 0%; }
-  </style>
+  <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
   <div id="container">
     <h2>ESP32-CAM Last Photo</h2>
     <p>This is not a very fast machine...</p>
     <p>
-      <button onclick="rotatePhoto();">ROTATE</button>
-      <button onclick="capturePhoto(false)">CAPTURE PHOTO</button>
-      <button onclick="capturePhoto(true)">CAPTURE PHOTO w/ FLASH</button>
-      <button onclick="location.reload();">REFRESH PAGE</button>
-      <button onclick="sendEmail();">SEND EMAIL</button>
+      <button class="button buttonRed" onclick="location.reload();">REFRESH PAGE</button>
+      <button class="button" onclick="rotatePhoto();">ROTATE</button>
+    </p>
+    <p>
+      <button class="button" onclick="capturePhoto(false)">CAPTURE & SAVE PHOTO</button>
+      <button class="button" onclick="capturePhoto(true)">CAPTURE & SAVE PHOTO w/ FLASH</button>
+    </p>
+    <p>
+      <button class="button buttonGreen" onclick="sendEmail(false);">SEND EMAIL (saved)</button>
+      <button class="button buttonGreen" onclick="sendEmail(true);">SEND EMAIL (live)</button>
     </p>
     <p>
       Status: 
       <input type="text" id="statusbox" name="status"  width="50%">
     </p>
   </div>
+  <h3>Live photo</h3>
+  <div><img src="live-photo" id="photo" width="70%"></div>
+  <br>
+  <h3>Saved photo</h3>
   <div><img src="saved-photo" id="photo" width="70%"></div>
 </body>
 <script>
@@ -44,7 +49,7 @@
     xhr.send();
   }
 
-  function sendEmail() {
+  function sendEmail(liveImage) {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
       if ( xhr.readyState == XMLHttpRequest.DONE ) {
@@ -52,7 +57,11 @@
       }
     }
 
-    xhr.open('GET', "/send-email", true);
+    var url = "/send-email";
+    if (liveImage) {
+      url = "/send-email-live";
+    }
+    xhr.open('GET', url, true);
     xhr.send();
   }
 

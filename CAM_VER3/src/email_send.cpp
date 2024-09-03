@@ -56,7 +56,7 @@ SMTPSession smtp;
 void smtpCallback(SMTP_Status status);
 
 
-String emailSend()
+String emailSend(bool LiveImage)
 {
   if (WiFi.status() != WL_CONNECTED)
   {
@@ -162,25 +162,26 @@ String emailSend()
    * file name, MIME type, file path, file storage type,
    * transfer encoding and content encoding
    */
-  
-  // SEND FROM THE FLASH FS
-  /*
-  att.descr.filename = PHOTO_FILE_NAME;
-  att.descr.mime = F("image/jpg");
-  att.descr.description = PHOTO_FILE_NAME;
-  att.file.path = PHOTO_FILE_PATH;
-  att.file.storage_type = esp_mail_file_storage_type_flash;
-  att.descr.transfer_encoding = Content_Transfer_Encoding::enc_base64;
-  */
 
-  // CAPTURE AND SEND FROM RAM
-  camera_fb_t *fb = esp_camera_fb_get();  
+  camera_fb_t *fb;
+  if (LiveImage) {
+    // CAPTURE AND SEND FROM RAM
+    fb = esp_camera_fb_get();  
 
-  att.descr.filename = F("camera.jpg");
-  att.descr.mime = F("image/jpg");
+    att.descr.filename = F("camera.jpg");
+    att.descr.mime = F("image/jpg");
+    att.descr.description = F("camera.jpg");
 
-  att.blob.data = fb->buf;
-  att.blob.size = fb->len;
+    att.blob.data = fb->buf;
+    att.blob.size = fb->len;
+  } else {
+    // SEND FROM THE FLASH FS
+    att.descr.filename = PHOTO_FILE_NAME;
+    att.descr.mime = F("image/jpg");
+    att.descr.description = PHOTO_FILE_NAME;
+    att.file.path = PHOTO_FILE_PATH;
+    att.file.storage_type = esp_mail_file_storage_type_flash;
+  }
 
   att.descr.transfer_encoding = Content_Transfer_Encoding::enc_base64;
 
@@ -191,7 +192,7 @@ String emailSend()
   if (!smtp.connect(&config))
   {
     MailClient.printf("Connection error, Status Code: %d, Error Code: %d, Reason: %s\n", smtp.statusCode(), smtp.errorCode(), smtp.errorReason().c_str());
-    esp_camera_fb_return(fb);
+    if (LiveImage) { esp_camera_fb_return(fb); }
     return "Mail Connection error";
   }
 
@@ -213,7 +214,7 @@ String emailSend()
     MailClient.printf("Error, Status Code: %d, Error Code: %d, Reason: %s\n", smtp.statusCode(), smtp.errorCode(), smtp.errorReason().c_str());
   };
 
-  esp_camera_fb_return(fb);
+  if (LiveImage) { esp_camera_fb_return(fb); }
 
   // to clear sending result log
   // smtp.sendingResult.clear();
