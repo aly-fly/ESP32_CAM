@@ -44,13 +44,6 @@ void setupLedFlash(int pin);
 //#define CAMERA_MODEL_DFRobot_Romeo_ESP32S3 // Has PSRAM
 #include "camera_pins.h"
 
-// ===========================
-// Enter your WiFi credentials
-// ===========================
-// see #include "_USER_DEFINES.h"
-
-
-
 
 void CameraInit(void) {
   Serial.println("Camera start...");  

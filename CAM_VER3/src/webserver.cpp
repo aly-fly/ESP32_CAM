@@ -4,6 +4,8 @@
 #include "LittleFS.h"
 #include "esp_camera.h"
 #include "_CONFIG.h"
+#include <_global_vars.h>
+#include "SaveSettings.h"
 
 String ledState;
 String currentStatus;
@@ -12,15 +14,14 @@ String currentStatus;
 AsyncWebServer server(80);
 
 boolean takeNewPhoto = false;
-boolean useFlash = false;
 boolean sendEmail = false;
 boolean emailLiveImage = false;
 
 
-// Replaces placeholder with LED state value
-String processor(const String& var){
-  Serial.println(var);
-  if(var == "STATE"){
+// config web page
+String placeholderPocessor(const String& var){
+  // LED web page
+    if(var == "STATE"){
     if(digitalRead(LED_RED_GPIO_NUM)){
       ledState = "ON";
     }
@@ -30,8 +31,19 @@ String processor(const String& var){
     Serial.println(ledState);
     return ledState;
   }
+
+  // config and other pages
+  if(var == "wifiSsid")       { return MyConfig.wifiSsid; }
+  if(var == "wifiPass")       { return MyConfig.wifiPass; }
+  if(var == "senderEmail")    { return MyConfig.senderEmail; }
+  if(var == "senderPassword") { return MyConfig.senderPassword; }
+  if(var == "recipientEmail") { return MyConfig.recipientEmail; }
+  if(var == "recipientName")  { return MyConfig.recipientName; }
+  if(var == "deviceName")     { return MyConfig.deviceName; }
+  if(var == "useFlash")       { return MyConfig.useFlash; }
   return String();
 }
+
 
 void notFound(AsyncWebServerRequest *request) {
     log_d("404 file not found.");
@@ -66,30 +78,11 @@ void webserverInit(){
   server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(LittleFS, "/favicon.ico", String(), false);
   });
-
-  // Route for root / web page
-  server.on("/led", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(LittleFS, "/indexLED.html", String(), false, processor);
-  });
   
   // Route to load style.css file
   server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(LittleFS, "/style.css", "text/css");
   });
-
-  // Route to set GPIO to HIGH
-  server.on("/on", HTTP_GET, [](AsyncWebServerRequest *request){
-    digitalWrite(LED_RED_GPIO_NUM, HIGH);    
-    request->send(LittleFS, "/indexLED.html", String(), false, processor);
-  });
-  
-  // Route to set GPIO to LOW
-  server.on("/off", HTTP_GET, [](AsyncWebServerRequest *request){
-    digitalWrite(LED_RED_GPIO_NUM, LOW);    
-    request->send(LittleFS, "/indexLED.html", String(), false, processor);
-  });
-
-
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest * request) {
@@ -103,7 +96,6 @@ void webserverInit(){
   });
 
   server.on("/live-photo", HTTP_GET, [](AsyncWebServerRequest * request) {
-
     // CAPTURE AND SEND FROM RAM
     camera_fb_t *fb = esp_camera_fb_get();
 
@@ -117,15 +109,10 @@ void webserverInit(){
   });
 
   server.on("/capture", HTTP_GET, [](AsyncWebServerRequest * request) {
+// following line causes "Guru Meditation Error: Core  1 panic'ed (LoadProhibited). Exception was unhandled."
+//    if (request->hasParam("useFlash")) { MyConfig.useFlash = request->getParam("useFlash", true)->value(); }
     takeNewPhoto = true;
     request->send_P(200, "text/plain", "Taking photo...");
-    currentStatus = "Taking photo in progress..";
-  });
-
-  server.on("/capture-flash", HTTP_GET, [](AsyncWebServerRequest * request) {
-    takeNewPhoto = true;
-    useFlash = true;
-    request->send_P(200, "text/plain", "Taking photo with flash...");
     currentStatus = "Taking photo in progress..";
   });
 
@@ -147,6 +134,48 @@ void webserverInit(){
   server.on("/getStatus", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send_P(200, "text/plain", currentStatus.c_str());
   });  
+
+  server.on("/config", HTTP_GET, [](AsyncWebServerRequest * request) {
+    NVSReadSettings();
+    request->send(LittleFS, "/config.html", String(), false, placeholderPocessor);
+  }); 
+
+
+  // Handle a POST request to <IP>/saveConfig with listed form fields
+  server.on("/saveConfig", HTTP_POST, [](AsyncWebServerRequest *request){
+    log_i("Server /saveConfig POST request.");
+    if (request->hasParam("wifiSsid", true))       { MyConfig.wifiSsid       = request->getParam("wifiSsid", true)->value(); }
+    if (request->hasParam("wifiPass", true))       { MyConfig.wifiPass       = request->getParam("wifiPass", true)->value(); }
+    if (request->hasParam("senderEmail", true))    { MyConfig.senderEmail    = request->getParam("senderEmail", true)->value(); }
+    if (request->hasParam("senderPassword", true)) { MyConfig.senderPassword = request->getParam("senderPassword", true)->value(); }
+    if (request->hasParam("recipientEmail", true)) { MyConfig.recipientEmail = request->getParam("recipientEmail", true)->value(); }
+    if (request->hasParam("recipientName", true))  { MyConfig.recipientName  = request->getParam("recipientName", true)->value(); }
+    if (request->hasParam("deviceName", true))     { MyConfig.deviceName     = request->getParam("deviceName", true)->value(); }
+    if (request->hasParam("useFlash", true))       { MyConfig.useFlash       = request->getParam("useFlash", true)->value(); }
+
+    NVSWriteSettings();  
+    request->send(200, "text/plain", "Settings saved.");
+    currentStatus = "Settings saved.";
+  });
+
+
+
+  // Route for root / web page
+  server.on("/led", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(LittleFS, "/indexLED.html", String(), false, placeholderPocessor);
+  });
+  // Route to set GPIO to HIGH
+  server.on("/on", HTTP_GET, [](AsyncWebServerRequest *request){
+    digitalWrite(LED_RED_GPIO_NUM, LOW);    
+    request->send(LittleFS, "/indexLED.html", String(), false, placeholderPocessor);
+  });
+  // Route to set GPIO to LOW
+  server.on("/off", HTTP_GET, [](AsyncWebServerRequest *request){
+    digitalWrite(LED_RED_GPIO_NUM, HIGH);    
+    request->send(LittleFS, "/indexLED.html", String(), false, placeholderPocessor);
+  });
+
+
 
   // Start server
   log_i("Starting main web server...");

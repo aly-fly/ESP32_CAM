@@ -1,5 +1,10 @@
 
 // #define WEBSERVER_TEST  1
+#define DEFAULT_DEVICENAME "ESP32 camera"
+#define DEFAULT_WIFI_SSID  "ConfigWifi"
+#define DEFAULT_WIFI_PASS  "ConfigWifiPass"
+
+#define NVS_NAMESPACE  "MyConfig"
 
 // Photo File Name to save in the file system
 #define PHOTO_FILE_NAME "photo.jpg"
@@ -20,4 +25,4 @@
 
 #define SMTP_HOST "smtp.gmail.com"
 #define MSG_HEADER "Message-ID: <user1@gmail.com>"
-
+#define MSG_BODY "Test text.\nSecond line."

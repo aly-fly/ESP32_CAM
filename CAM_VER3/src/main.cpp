@@ -1,8 +1,9 @@
 #include <arduino.h>
 #include <WiFi.h>
 #include "chip_info.h"
-#include "_USER_DEFINES.h"
 #include "_CONFIG.h"
+#include "_global_vars.h"
+#include "SaveSettings.h"
 #include "camera.h"
 #include "LittleFS.h"
 #include "Clock.h"
@@ -26,6 +27,8 @@ void setup() {
   Serial.println();
 #endif
 
+  NVSReadSettings();
+
   // Initialize LittleFS
   Serial.println("Mounting LittleFS..");
   if(!LittleFS.begin()){
@@ -38,7 +41,7 @@ void setup() {
   Serial.println();
   Serial.println("WiFi start...");  
 
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  WiFi.begin(MyConfig.wifiSsid, MyConfig.wifiPass);
   WiFi.setSleep(false);
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -67,14 +70,13 @@ void setup() {
 void loop() {
 
   if (takeNewPhoto) {
-    if (useFlash) {
+    if (MyConfig.useFlash == "1") {
       digitalWrite(LED_FLASH_GPIO_NUM, HIGH);
     }
     delay(250); 
     capturePhotoSaveToFilesystem();
     digitalWrite(LED_FLASH_GPIO_NUM, LOW); 
     takeNewPhoto = false;
-    useFlash = false;
     currentStatus = "Photo saved.";
   }
 

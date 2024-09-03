@@ -1,5 +1,5 @@
 #include "_CONFIG.h"
-#include "_USER_DEFINES.h"
+#include "_global_vars.h"
 
 
 #include <Arduino.h>
@@ -84,8 +84,8 @@ String emailSend(bool LiveImage)
   /* Set the session config */
   config.server.host_name = SMTP_HOST;
   config.server.port = SMTP_PORT;
-  config.login.email = AUTHOR_EMAIL;
-  config.login.password = AUTHOR_PASSWORD;
+  config.login.email = MyConfig.senderEmail;
+  config.login.password = MyConfig.senderPassword;
 
   /** Assign your host name or you public IPv4 or IPv6 only
    * as this is the part of EHLO/HELO command to identify the client system
@@ -115,12 +115,12 @@ String emailSend(bool LiveImage)
   message.enable.chunking = true;
 
   /* Set the message headers */
-  message.sender.name = AUTHOR_NAME;
-  message.sender.email = AUTHOR_EMAIL;
+  message.sender.name = MyConfig.deviceName;
+  message.sender.email = MyConfig.senderEmail;
 
-  message.subject = MSG_TITLE;
+  message.subject = String("Photo sent from ") + MyConfig.deviceName;
 
-  message.addRecipient(RECIPIENT_NAME, RECIPIENT_EMAIL);
+  message.addRecipient(MyConfig.recipientName, MyConfig.recipientEmail);
 
   message.text.content = MSG_BODY;
   message.text.charSet = F("utf-8");

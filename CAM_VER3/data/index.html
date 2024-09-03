@@ -6,15 +6,13 @@
 </head>
 <body>
   <div id="container">
-    <h2>ESP32-CAM Last Photo</h2>
-    <p>This is not a very fast machine...</p>
+    <h2>ESP32 camera</h2>
     <p>
       <button class="button buttonRed" onclick="location.reload();">REFRESH PAGE</button>
       <button class="button" onclick="rotatePhoto();">ROTATE</button>
     </p>
     <p>
       <button class="button" onclick="capturePhoto(false)">CAPTURE & SAVE PHOTO</button>
-      <button class="button" onclick="capturePhoto(true)">CAPTURE & SAVE PHOTO w/ FLASH</button>
     </p>
     <p>
       <button class="button buttonGreen" onclick="sendEmail(false);">SEND EMAIL (saved)</button>
@@ -30,6 +28,10 @@
   <br>
   <h3>Saved photo</h3>
   <div><img src="saved-photo" id="photo" width="70%"></div>
+  <p>
+    <a href="config">CONFIGURATION</a>
+    <br>&nbsp;<br>
+  </p>
 </body>
 <script>
   var deg = 0;
@@ -41,9 +43,9 @@
         statusbox.value = xhr.responseText;
       }
     }
-    var url = "/capture";
+    var url = "/capture?useFlash=0";
     if (useFlash) {
-      url = "/capture-flash";
+      url = "/capture?useFlash=1";
     }
     xhr.open('GET', url, true);
     xhr.send();

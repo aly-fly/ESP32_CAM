@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Configuration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <h1>Configuration</h1>
+  <form action="/saveConfig" method="post">
+    <p>
+        <h3>WiFi settings</h3>
+        <label>SSID:&nbsp;</label>
+        <input type="text" maxlength="30" name="wifiSsid" value="%wifiSsid%"><br>
+
+        <label>Pass:&nbsp;</label>
+        <input type="text" maxlength="30" name="wifiPass" value="%wifiPass%"><br>
+        
+        <h3>Gmail settings</h3>
+        <label>API email:&nbsp;</label>
+        <input type="text" maxlength="30" name="senderEmail" value="%senderEmail%"><br>
+
+        <label>API passkey:&nbsp;</label>
+        <input type="text" maxlength="20" name="senderPassword" value="%senderPassword%"><br>
+
+        <label>Recipient email:&nbsp;</label>
+        <input type="text" maxlength="30" name="recipientEmail" value="%recipientEmail%"><br>
+
+        <label>Recipient name:&nbsp;</label>
+        <input type="text" maxlength="30" name="recipientName" value="%recipientName%"><br>
+
+        <h3>Other settings</h3>
+        <label>Device name:&nbsp;</label>
+        <input type="text" maxlength="30" name="deviceName" value="%deviceName%"><br>
+
+        <label>Use flash:&nbsp;</label>
+        <input type="text" maxlength="1" name="useFlash" value="%useFlash%"><br>
+
+        <input type="submit" value="Save" class="button">
+    </p>
+  </form>
+  
+</body>
+</html>
+
+
