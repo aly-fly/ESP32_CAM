@@ -132,7 +132,9 @@ void webserverInit(){
   });
 
   server.on("/getStatus", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send_P(200, "text/plain", currentStatus.c_str());
+    String response;
+    response = currentStatus + "   [wifi " + String((WiFi.RSSI() + 90)*2) + " %]"; // indicator approx 0..100
+    request->send_P(200, "text/plain", response.c_str());
   });  
 
   server.on("/config", HTTP_GET, [](AsyncWebServerRequest * request) {

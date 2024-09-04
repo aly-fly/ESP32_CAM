@@ -7,8 +7,6 @@
 unsigned long LastTimeClockSynced = 0; // data is not valid
 
 
-// Required for WiFiClientSecure and for checks the validity date of the certificate. 
-// Setting clock for CA authorization...
 void setClock(void) {
   Serial.println("setClock()");
 
