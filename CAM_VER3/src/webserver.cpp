@@ -2,10 +2,12 @@
 #include "ESPAsyncWebServer.h"
 //#include <ESPmDNS.h>
 #include "LittleFS.h"
+#include "fsTools.h"
 #include "esp_camera.h"
 #include "_CONFIG.h"
 #include <_global_vars.h>
 #include "SaveSettings.h"
+#include "Clock.h"
 
 String ledState;
 String currentStatus;
@@ -41,6 +43,19 @@ String placeholderPocessor(const String& var){
   if(var == "recipientName")  { return MyConfig.recipientName; }
   if(var == "deviceName")     { return MyConfig.deviceName; }
   if(var == "useFlash")       { return MyConfig.useFlash; }
+  if(var == "autoSendEmail")  { return MyConfig.autoSendEmail; }
+  if(var == "emailBodyTxt")   { return MyConfig.emailBodyTxt; }
+  
+  if(var == "SavedPhotoTimestamp") {
+    time_t fileTime = getFileTime(PHOTO_FILE_wPATH);
+    return timeToString(fileTime);
+  }
+  if(var == "LivePhotoTimestamp") {
+    return timeToString(currentTime);
+  }
+  if(var == "LastEmailSentT") {
+    return timeToString(LastEmailSentT);
+  }
   return String();
 }
 
@@ -76,7 +91,7 @@ void webserverInit(){
   server.onNotFound(notFound);
 
   server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(LittleFS, "/favicon.ico", String(), false);
+    request->send(LittleFS, "/favicon.ico", "image/x-icon", false);
   });
   
   // Route to load style.css file
@@ -87,12 +102,16 @@ void webserverInit(){
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest * request) {
     log_i("Server Root request.");
+    NVSReadData();
     //log_i("Client: ", request->client()->remoteIP());
-    request->send(LittleFS, "/index.html", String(), false);
+    request->send(LittleFS, "/index.html", "text/html", false, placeholderPocessor);
   });
 
   server.on("/saved-photo", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(LittleFS, PHOTO_FILE_PATH, "image/jpg", false);
+    request->send(LittleFS, PHOTO_FILE_wPATH, "image/jpg", false);
+    time_t fileTime = getFileTime(PHOTO_FILE_wPATH);
+    Serial.print("Saved file timestamp: ");
+    Serial.println(timeToString(fileTime));
   });
 
   server.on("/live-photo", HTTP_GET, [](AsyncWebServerRequest * request) {
@@ -139,7 +158,7 @@ void webserverInit(){
 
   server.on("/config", HTTP_GET, [](AsyncWebServerRequest * request) {
     NVSReadSettings();
-    request->send(LittleFS, "/config.html", String(), false, placeholderPocessor);
+    request->send(LittleFS, "/config.html", "text/html", false, placeholderPocessor);
   }); 
 
 
@@ -154,6 +173,8 @@ void webserverInit(){
     if (request->hasParam("recipientName", true))  { MyConfig.recipientName  = request->getParam("recipientName", true)->value(); }
     if (request->hasParam("deviceName", true))     { MyConfig.deviceName     = request->getParam("deviceName", true)->value(); }
     if (request->hasParam("useFlash", true))       { MyConfig.useFlash       = request->getParam("useFlash", true)->value(); }
+    if (request->hasParam("autoSendEmail", true))  { MyConfig.autoSendEmail  = request->getParam("autoSendEmail", true)->value(); }
+    if (request->hasParam("emailBodyTxt", true))   { MyConfig.emailBodyTxt   = request->getParam("emailBodyTxt", true)->value(); }
 
     NVSWriteSettings();  
     request->send(200, "text/plain", "Settings saved.");
@@ -164,17 +185,17 @@ void webserverInit(){
 
   // Route for root / web page
   server.on("/led", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(LittleFS, "/indexLED.html", String(), false, placeholderPocessor);
+    request->send(LittleFS, "/indexLED.html", "text/html", false, placeholderPocessor);
   });
   // Route to set GPIO to HIGH
   server.on("/on", HTTP_GET, [](AsyncWebServerRequest *request){
     digitalWrite(LED_RED_GPIO_NUM, LOW);    
-    request->send(LittleFS, "/indexLED.html", String(), false, placeholderPocessor);
+    request->send(LittleFS, "/indexLED.html", "text/html", false, placeholderPocessor);
   });
   // Route to set GPIO to LOW
   server.on("/off", HTTP_GET, [](AsyncWebServerRequest *request){
     digitalWrite(LED_RED_GPIO_NUM, HIGH);    
-    request->send(LittleFS, "/indexLED.html", String(), false, placeholderPocessor);
+    request->send(LittleFS, "/indexLED.html", "text/html", false, placeholderPocessor);
   });
 
 

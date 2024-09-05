@@ -4,4 +4,7 @@
 void NVSReadSettings();
 void NVSWriteSettings();
 
+void NVSReadData();
+void NVSWriteData();
+
 #endif /* SAVESETTINGS_H_ */

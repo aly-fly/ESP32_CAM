@@ -8,9 +8,14 @@ typedef struct {
     recipientEmail,
     recipientName,
     deviceName,
-    useFlash;
+    useFlash,
+    autoSendEmail,
+    emailBodyTxt;
     bool wifiValid;
 } configStruct_t;
 
 extern configStruct_t MyConfig;
+
+extern time_t currentTime;
+extern time_t LastEmailSentT;
 

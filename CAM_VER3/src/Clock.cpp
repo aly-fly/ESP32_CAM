@@ -3,6 +3,7 @@
 #include <esp_sntp.h>
 #include <time.h>
 #include "_CONFIG.h"
+#include "Clock.h"
 
 unsigned long LastTimeClockSynced = 0; // data is not valid
 
@@ -14,9 +15,9 @@ void setClock(void) {
     return;  // clock is already synced
   }
 
+  Serial.print("NTP time sync");
   configTime(GMT_OFFSET*60*60, DST_OFFSET*60*60, TIME_SERVER);
 
-  Serial.print("NTP time sync");
   time_t nowSecs = time(nullptr);
   while (nowSecs < 8 * 3600 * 2) {
     delay(500);
@@ -27,9 +28,12 @@ void setClock(void) {
 
   Serial.println();
   struct tm timeinfo;
-  gmtime_r(&nowSecs, &timeinfo);
+  localtime_r(&nowSecs, &timeinfo);
   Serial.print("Current time: ");
   Serial.print(asctime(&timeinfo));
+
+  Serial.print("Current time: ");
+  Serial.println(timeToString(nowSecs)); 
   
   LastTimeClockSynced = millis();
 }
@@ -56,3 +60,12 @@ bool GetCurrentTime(int &Month, int &Day, int &Hour, int &Minute) {
   return result;
 }
 
+String timeToString (time_t timeIn) {
+  // time_t timeIn = time(nullptr); // current time
+  struct tm timeinfo;
+  localtime_r(&timeIn, &timeinfo);
+  char timeStr[10+1+8+2];
+  sprintf(timeStr, "%04d-%02d-%02d %02d:%02d:%02d", (timeinfo.tm_year) + 1900, (timeinfo.tm_mon) + 1, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+  asctime(&timeinfo); // "Sat Aug 31 20:24:17 2024" 
+  return String(timeStr);  
+}

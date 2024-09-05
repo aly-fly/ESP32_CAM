@@ -17,10 +17,13 @@
         <input type="text" maxlength="30" name="wifiPass" value="%wifiPass%"><br>
         
         <h3>Gmail settings</h3>
-        <label>API email:&nbsp;</label>
+        Follow 
+        <a href="https://knowledge.workspace.google.com/kb/how-to-create-app-passwords-000009237">Basic</a> and 
+        <a href="https://mailtrap.io/blog/gmail-smtp/#How-to-configure-Gmail-SMTP-server-settings">Guided</a> instructions.<br>
+        <label>SMTP email:&nbsp;</label>
         <input type="text" maxlength="30" name="senderEmail" value="%senderEmail%"><br>
 
-        <label>API passkey:&nbsp;</label>
+        <label>SMTP passkey:&nbsp;</label>
         <input type="text" maxlength="20" name="senderPassword" value="%senderPassword%"><br>
 
         <label>Recipient email:&nbsp;</label>
@@ -35,6 +38,12 @@
 
         <label>Use flash:&nbsp;</label>
         <input type="text" maxlength="1" size="3" name="useFlash" value="%useFlash%"><br>
+
+        <label>Auto send email:&nbsp;</label>
+        <input type="text" maxlength="1" size="3" name="autoSendEmail" value="%autoSendEmail%"><br>
+
+        <label>Custom email text:&nbsp;</label>
+        <input type="text" maxlength="100" size="52" name="emailBodyTxt" value="%emailBodyTxt%"><br>
 
         <input type="submit" value="Save" class="button">
     </p>

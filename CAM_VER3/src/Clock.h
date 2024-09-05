@@ -3,7 +3,7 @@
 #define __CLOCK_H_
 
 void setClock(void);
-bool GetCurrentHour(int &Hour);
-bool GetCurrentTime(int &Month, int &Day, int &Hour);
+bool GetCurrentTime(int &Month, int &Day, int &Hour, int &Minute);
+String timeToString (time_t time);
 
 #endif //__CLOCK_H_

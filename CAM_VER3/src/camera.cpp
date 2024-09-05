@@ -6,6 +6,7 @@
 
 #include <LittleFS.h>
 #include <FS.h>
+#include "fsTools.h"
 
 #include "_CONFIG.h"
 
@@ -174,14 +175,6 @@ void CameraInit(void) {
 
 //===========================================================================================================
 
-size_t LittleFSFilesize(const char* filename) {
-  auto file = LittleFS.open(filename, FILE_READ);
-  size_t filesize = file.size();
-  // Don't forget to clean up!
-  file.close();
-  return filesize;
-}
-
 // Capture Photo and Save it to LittleFS
 void capturePhotoSaveToFilesystem( void ) {
   camera_fb_t * fb = NULL; // pointer
@@ -204,9 +197,9 @@ void capturePhotoSaveToFilesystem( void ) {
     yield();
 
     // Photo file name
-    Serial.printf("Picture file name: %s\n", PHOTO_FILE_PATH);
+    Serial.printf("Picture file name: %s\n", PHOTO_FILE_wPATH);
     Time1 = esp_timer_get_time();
-    File file = LittleFS.open(PHOTO_FILE_PATH, FILE_WRITE);
+    File file = LittleFS.open(PHOTO_FILE_wPATH, FILE_WRITE);
 
     // Insert the data in the photo file
     if (!file) {
@@ -224,7 +217,7 @@ void capturePhotoSaveToFilesystem( void ) {
     esp_camera_fb_return(fb);
 
     // check if file has been correctly saved in LittleFS
-    fileSize = LittleFSFilesize(PHOTO_FILE_PATH);
+    fileSize = getFileSize(PHOTO_FILE_wPATH);
     
     ok = fileSize > 100;
     Serial.printf("File save ok: %d\n", ok);

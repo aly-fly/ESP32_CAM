@@ -6,7 +6,7 @@
 </head>
 <body>
   <div id="container">
-    <h2>ESP32 camera</h2>
+    <h2>%deviceName%</h2>
     <p>
       <button class="button buttonRed" onclick="location.reload();">REFRESH PAGE</button>
       <button class="button" onclick="rotatePhoto();">ROTATE</button>
@@ -24,10 +24,19 @@
     </p>
   </div>
   <h3>Live photo</h3>
-  <div><img src="live-photo" id="photo" width="70%"></div>
+  <p>
+    %LivePhotoTimestamp%
+  </p>
+  <div><img src="live-photo" id="photo"></div>
   <br>
   <h3>Saved photo</h3>
-  <div><img src="saved-photo" id="photo" width="70%"></div>
+  <p>
+    %SavedPhotoTimestamp%
+  </p>
+  <div><img src="saved-photo" id="photo"></div>
+  <p>
+    Last email sent on: %LastEmailSentT%
+  </p>
   <p>
     <a href="config">CONFIGURATION</a>
     <br>&nbsp;<br>

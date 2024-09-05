@@ -28,6 +28,7 @@ void setup() {
 #endif
 
   NVSReadSettings();
+  NVSReadData();
 
   // Initialize LittleFS
   Serial.println("Mounting LittleFS..");
@@ -52,6 +53,7 @@ void setup() {
   Serial.println("WiFi connected.");
 
   setClock();
+  currentTime = time(nullptr);
   
 #ifdef WEBSERVER_TEST
   Serial.println("Starting config & test servers...");
@@ -67,6 +69,8 @@ void setup() {
   currentStatus = "Boot finished";
 }
 
+//==================================================================================================================
+
 void loop() {
 
   if (takeNewPhoto) {
@@ -78,6 +82,20 @@ void loop() {
     digitalWrite(LED_FLASH_GPIO_NUM, LOW); 
     takeNewPhoto = false;
     currentStatus = "Photo saved.";
+  }
+
+  delay(500);
+
+  currentTime = time(nullptr);
+
+  // Check again after 5 hrs since last email. Minimum 1 hour, otherwise it will send multiple emails inside one hour.
+  if (currentTime > (LastEmailSentT + (5 * 60 * 60))) {
+    int month, day, hour, minute;
+    GetCurrentTime(month, day, hour, minute);
+    if ((day == AUTO_SEND_EMAIL_DAY) && (hour == AUTO_SEND_EMAIL_HOUR)) {
+      log_n ("Day & Hour matches. Sending email.");
+      sendEmail = true;
+    }
   }
 
   delay(500);

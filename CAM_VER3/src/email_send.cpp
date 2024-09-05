@@ -1,5 +1,6 @@
 #include "_CONFIG.h"
 #include "_global_vars.h"
+#include "SaveSettings.h"
 
 
 #include <Arduino.h>
@@ -118,11 +119,14 @@ String emailSend(bool LiveImage)
   message.sender.name = MyConfig.deviceName;
   message.sender.email = MyConfig.senderEmail;
 
-  message.subject = String("Photo sent from ") + MyConfig.deviceName;
+  String Txt;
+  Txt = "Photo sent from ";
+  Txt.concat(MyConfig.deviceName);
+  message.subject = Txt;
 
   message.addRecipient(MyConfig.recipientName, MyConfig.recipientEmail);
 
-  message.text.content = MSG_BODY;
+  message.text.content = MyConfig.emailBodyTxt;
   message.text.charSet = F("utf-8");
 
   /** The content transfer encoding e.g.
@@ -166,7 +170,14 @@ String emailSend(bool LiveImage)
   camera_fb_t *fb;
   if (LiveImage) {
     // CAPTURE AND SEND FROM RAM
+    // flash
+    if (MyConfig.useFlash == "1") {
+      digitalWrite(LED_FLASH_GPIO_NUM, HIGH);
+    }
+    delay(250); 
+    // grab buffer
     fb = esp_camera_fb_get();  
+    digitalWrite(LED_FLASH_GPIO_NUM, LOW); 
 
     att.descr.filename = F("camera.jpg");
     att.descr.mime = F("image/jpg");
@@ -179,7 +190,7 @@ String emailSend(bool LiveImage)
     att.descr.filename = PHOTO_FILE_NAME;
     att.descr.mime = F("image/jpg");
     att.descr.description = PHOTO_FILE_NAME;
-    att.file.path = PHOTO_FILE_PATH;
+    att.file.path = PHOTO_FILE_wPATH;
     att.file.storage_type = esp_mail_file_storage_type_flash;
   }
 
@@ -217,7 +228,12 @@ String emailSend(bool LiveImage)
   if (LiveImage) { esp_camera_fb_return(fb); }
 
   // to clear sending result log
-  // smtp.sendingResult.clear();
+  smtp.sendingResult.clear();
+
+  if (ok) {
+    LastEmailSentT = currentTime;
+    NVSWriteData();
+  }
 
   MailClient.printf("Free Heap: %d\n", MailClient.getFreeHeap());
   if (ok) { return "Email sent sucessfully."; }
@@ -228,6 +244,7 @@ String emailSend(bool LiveImage)
 /* Callback function to get the Email sending status */
 void smtpCallback(SMTP_Status status)
 {
+  log_v("callback executed");
   /* Print the current status */
   Serial.println(status.info());
 
