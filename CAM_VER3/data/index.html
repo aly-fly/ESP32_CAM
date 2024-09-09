@@ -8,7 +8,7 @@
   <div id="container">
     <h2>%deviceName%</h2>
     <p>
-      <button class="button buttonRed" onclick="location.reload();">REFRESH PAGE</button>
+      <button class="button buttonRed" onclick="location.reload();">REFRESH</button>
       <button class="button" onclick="rotatePhoto();">ROTATE</button>
     </p>
     <p>
@@ -22,7 +22,9 @@
       Status: 
       <input type="text" id="statusbox" name="status"  size=50>
     </p>
-  </div>
+    <p>
+      Last email sent on: %LastEmailSentT%
+    </p>  </div>
   <h3>Live photo</h3>
   <p>
     %LivePhotoTimestamp%
@@ -34,9 +36,6 @@
     %SavedPhotoTimestamp%
   </p>
   <div><img src="saved-photo" id="photo"></div>
-  <p>
-    Last email sent on: %LastEmailSentT%
-  </p>
   <p>
     <a href="config">CONFIGURATION</a>
     <br>&nbsp;<br>

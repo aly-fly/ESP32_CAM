@@ -45,6 +45,8 @@ String placeholderPocessor(const String& var){
   if(var == "useFlash")       { return MyConfig.useFlash; }
   if(var == "autoSendEmail")  { return MyConfig.autoSendEmail; }
   if(var == "emailBodyTxt")   { return MyConfig.emailBodyTxt; }
+  if(var == "autoSendDay")    { return String(MyConfig.autoSendDay); }
+  if(var == "autoSendHour")   { return String(MyConfig.autoSendHour); }
   
   if(var == "SavedPhotoTimestamp") {
     time_t fileTime = getFileTime(PHOTO_FILE_wPATH);
@@ -175,6 +177,8 @@ void webserverInit(){
     if (request->hasParam("useFlash", true))       { MyConfig.useFlash       = request->getParam("useFlash", true)->value(); }
     if (request->hasParam("autoSendEmail", true))  { MyConfig.autoSendEmail  = request->getParam("autoSendEmail", true)->value(); }
     if (request->hasParam("emailBodyTxt", true))   { MyConfig.emailBodyTxt   = request->getParam("emailBodyTxt", true)->value(); }
+    if (request->hasParam("autoSendDay", true))    { MyConfig.autoSendDay    = atoi(request->getParam("autoSendDay", true)->value().c_str()); }
+    if (request->hasParam("autoSendHour", true))   { MyConfig.autoSendHour   = atoi(request->getParam("autoSendHour", true)->value().c_str()); }
 
     NVSWriteSettings();  
     request->send(200, "text/plain", "Settings saved.");

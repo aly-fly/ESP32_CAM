@@ -232,7 +232,11 @@ String emailSend(bool LiveImage)
 
   if (ok) {
     LastEmailSentT = currentTime;
+    LastEmailRetryMin = 0;
     NVSWriteData();
+  } else {
+    // retry in 5 mins
+    LastEmailRetryMin += 5;
   }
 
   MailClient.printf("Free Heap: %d\n", MailClient.getFreeHeap());

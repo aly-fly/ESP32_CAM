@@ -21,7 +21,9 @@ void NVSReadSettings() {
   MyConfig.useFlash       = preferences.getString("useFlash", "1");
   MyConfig.autoSendEmail  = preferences.getString("autoSendEmail", "1");
   MyConfig.emailBodyTxt   = preferences.getString("emailBodyTxt", "Emai txt.");
-  
+  MyConfig.autoSendDay    = preferences.getInt   ("autoSendDay", 28);
+  MyConfig.autoSendHour   = preferences.getInt   ("autoSendHour", 18); 
+
   preferences.end();
   log_i("Reading from NVS (config) finished.");
 }
@@ -41,6 +43,8 @@ void NVSWriteSettings() {
   preferences.putString("useFlash",       MyConfig.useFlash); 
   preferences.putString("autoSendEmail",  MyConfig.autoSendEmail);
   preferences.putString("emailBodyTxt",   MyConfig.emailBodyTxt); 
+  preferences.putInt   ("autoSendDay",    MyConfig.autoSendDay); 
+  preferences.putInt   ("autoSendHour",   MyConfig.autoSendHour); 
   
   preferences.end();        
   log_i("Writing to NVS (config) finished. ");

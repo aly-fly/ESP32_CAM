@@ -20,8 +20,6 @@
 #define GMT_OFFSET  1
 #define DST_OFFSET  1
 
-#define AUTO_SEND_EMAIL_DAY  5
-#define AUTO_SEND_EMAIL_HOUR  22
 
 // check that settings are correct in this file:
 #include <ESP_Mail_FS.h>

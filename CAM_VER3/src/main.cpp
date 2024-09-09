@@ -88,13 +88,18 @@ void loop() {
 
   currentTime = time(nullptr);
 
-  // Check again after 5 hrs since last email. Minimum 1 hour, otherwise it will send multiple emails inside one hour.
-  if (currentTime > (LastEmailSentT + (5 * 60 * 60))) {
+  // Check again after 2 hrs since last email. Minimum 1 hour, otherwise it will send multiple emails inside one hour.
+  if (currentTime > (LastEmailSentT + (2 * 60 * 60))) {
     int month, day, hour, minute;
     GetCurrentTime(month, day, hour, minute);
-    if ((day == AUTO_SEND_EMAIL_DAY) && (hour == AUTO_SEND_EMAIL_HOUR)) {
+    if ((day == MyConfig.autoSendDay) && (hour == MyConfig.autoSendHour) && (minute > LastEmailRetryMin)) {
       log_n ("Day & Hour matches. Sending email.");
+      emailLiveImage = true;
       sendEmail = true;
+    }
+    // reset retry counter
+    if ((day != MyConfig.autoSendDay) || (hour != MyConfig.autoSendHour)) {
+      LastEmailRetryMin = 0;
     }
   }
 
