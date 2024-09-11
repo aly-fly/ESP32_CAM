@@ -19,8 +19,8 @@ void NVSReadSettings() {
   MyConfig.recipientName  = preferences.getString("recipientName", "");
   MyConfig.deviceName     = preferences.getString("deviceName", DEFAULT_DEVICENAME);
   MyConfig.useFlash       = preferences.getString("useFlash", "1");
-  MyConfig.autoSendEmail  = preferences.getString("autoSendEmail", "1");
-  MyConfig.emailBodyTxt   = preferences.getString("emailBodyTxt", "Emai txt.");
+  MyConfig.autoSendEmail  = preferences.getString("autoSendEmail", "0");
+  MyConfig.emailBodyTxt   = preferences.getString("emailBodyTxt", "Email txt.");
   MyConfig.autoSendDay    = preferences.getInt   ("autoSendDay", 28);
   MyConfig.autoSendHour   = preferences.getInt   ("autoSendHour", 18); 
 

@@ -2,7 +2,7 @@
 // #define WEBSERVER_TEST  1
 #define DEFAULT_DEVICENAME "ESP32 camera"
 #define DEFAULT_WIFI_SSID  "ConfigWifi"
-#define DEFAULT_WIFI_PASS  "ConfigWifiPass"
+#define DEFAULT_WIFI_PASS  "ConfigPass"
 
 #define NVS_NAMESPACE_CONFIG  "MyConfig"
 #define NVS_NAMESPACE_DATA    "RuntimeData"

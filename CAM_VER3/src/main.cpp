@@ -41,6 +41,8 @@ void setup() {
 
   Serial.println();
   Serial.println("WiFi start...");  
+  Serial.print("Looking for ");  
+  Serial.println(MyConfig.wifiSsid);  
 
   WiFi.begin(MyConfig.wifiSsid, MyConfig.wifiPass);
   WiFi.setSleep(false);
