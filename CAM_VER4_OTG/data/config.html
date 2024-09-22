@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Configuration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <h1>Configuration</h1>
+  <form action="/saveConfig" method="post">
+    <p>
+        <h3>WiFi settings</h3>
+        <label>SSID:&nbsp;</label>
+        <input type="text" maxlength="30" name="wifiSsid" value="%wifiSsid%"><br>
+
+        <label>Pass:&nbsp;</label>
+        <input type="text" maxlength="30" name="wifiPass" value="%wifiPass%"><br>
+        
+        <h3>Gmail settings</h3>
+        Follow 
+        <a href="https://knowledge.workspace.google.com/kb/how-to-create-app-passwords-000009237">Basic</a> and 
+        <a href="https://mailtrap.io/blog/gmail-smtp/#How-to-configure-Gmail-SMTP-server-settings">Guided</a> instructions.<br>
+        <label>SMTP email:&nbsp;</label>
+        <input type="text" maxlength="30" name="senderEmail" value="%senderEmail%"><br>
+
+        <label>SMTP passkey:&nbsp;</label>
+        <input type="text" maxlength="20" name="senderPassword" value="%senderPassword%"><br>
+
+        <label>Recipient email:&nbsp;</label>
+        <input type="text" maxlength="30" name="recipientEmail" value="%recipientEmail%"><br>
+
+        <label>Recipient name:&nbsp;</label>
+        <input type="text" maxlength="30" name="recipientName" value="%recipientName%"><br>
+
+        <h3>Other settings</h3>
+        <label>Device name:&nbsp;</label>
+        <input type="text" maxlength="30" name="deviceName" value="%deviceName%"><br>
+
+        <label>Use flash:&nbsp;</label>
+        <input type="text" maxlength="1" size="3" name="useFlash" value="%useFlash%"><br>
+
+        <label>Auto send email:&nbsp;</label>
+        <input type="text" maxlength="1" size="3" name="autoSendEmail" value="%autoSendEmail%"><br>
+
+        <label>Auto send on the day and hour:&nbsp;</label>
+        <input type="text" maxlength="2" size="3" name="autoSendDay" value="%autoSendDay%"> 
+        <input type="text" maxlength="2" size="3" name="autoSendHour" value="%autoSendHour%"><br>
+
+        <label>Custom email text:&nbsp;</label>
+        <input type="text" maxlength="100" size="52" name="emailBodyTxt" value="%emailBodyTxt%"><br>
+
+        <input type="submit" value="Save" class="button">
+    </p>
+  </form>
+  
+  <p><a href="ota_start">OTA update server Start</a></p>
+</body>
+</html>
+
+
