@@ -72,12 +72,12 @@ void CameraInit(void) {
   config.pin_pwdn = PWDN_GPIO_NUM;
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 16000000;
-  config.frame_size = FRAMESIZE_UXGA;
+  config.frame_size = FRAMESIZE_XGA;
   config.pixel_format = PIXFORMAT_JPEG;  // for streaming
   //config.pixel_format = PIXFORMAT_RGB565; // for face detection/recognition
   config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
   config.fb_location = CAMERA_FB_IN_PSRAM;
-  config.jpeg_quality = 15;
+  config.jpeg_quality = 5;
   config.fb_count = 1;
 
   // if PSRAM IC present, init with UXGA resolution and higher JPEG quality
@@ -87,14 +87,15 @@ void CameraInit(void) {
       Serial.println("PSRAM found.");  
       // psramInit();
       Serial.println((String)"Memory available in PSRAM : " +ESP.getFreePsram());
-      config.jpeg_quality = 10;
+      config.jpeg_quality = 5;
       config.fb_count = 2;
       config.grab_mode = CAMERA_GRAB_LATEST;
     } else {
       Serial.println("PSRAM  NOT found.");  
       // Limit the frame size when PSRAM is not available
-      config.frame_size = FRAMESIZE_SVGA;
+      config.frame_size = FRAMESIZE_QVGA;
       config.fb_location = CAMERA_FB_IN_DRAM;
+      config.jpeg_quality = 15;      
     }
   } else {
     // Best option for face detection/recognition
@@ -137,7 +138,7 @@ void CameraInit(void) {
 
   // set frame size
   if (config.pixel_format == PIXFORMAT_JPEG) {
-    s->set_framesize(s, FRAMESIZE_SVGA); // changing this setting resets clock settings!
+    s->set_framesize(s, FRAMESIZE_XGA); // changing this setting resets clock settings!
   }
 
   // custom optimizations

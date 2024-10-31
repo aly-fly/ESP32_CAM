@@ -1,5 +1,5 @@
 
-// #define WEBSERVER_TEST  1
+#define WEBSERVER_TEST  1
 
 #define DEFAULT_DEVICENAME "ESP32 camera"
 
